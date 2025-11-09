@@ -1,0 +1,62 @@
+<div class="usuarios-container">
+  <h2>Gestión de Proveedores</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Nuevo Proveedor</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Empresa</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Dirección</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of listaProveedores">
+          <td>{{ p.id_proveedor }}</td>
+          <td>{{ p.nombre }}</td>
+          <td>{{ p.empresa }}</td>
+          <td>{{ p.telefono }}</td>
+          <td>{{ p.correo }}</td>
+          <td>{{ p.direccion }}</td>
+          <td>{{ p.estado }}</td>
+          <td>
+            <button class="edit-btn" (click)="abrirModal(p)">✏️</button>
+            <button class="delete-btn" (click)="confirmarEliminar(p.id_proveedor)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🌟 Ventana emergente flotante -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>{{ editando ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
+
+    <form (ngSubmit)="guardarProveedor()">
+      <input type="text" [(ngModel)]="proveedor.nombre" name="nombre" placeholder="Nombre" required />
+      <input type="text" [(ngModel)]="proveedor.empresa" name="empresa" placeholder="Empresa" />
+      <input type="text" [(ngModel)]="proveedor.telefono" name="telefono" placeholder="Teléfono" />
+      <input type="email" [(ngModel)]="proveedor.correo" name="correo" placeholder="Correo electrónico" />
+      <input type="text" [(ngModel)]="proveedor.direccion" name="direccion" placeholder="Dirección" />
+
+      <select [(ngModel)]="proveedor.estado" name="estado">
+        <option value="ACTIVO">Activo</option>
+        <option value="INACTIVO">Inactivo</option>
+      </select>
+
+      <div class="modal-actions">
+        <button type="submit">{{ editando ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

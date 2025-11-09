@@ -1,0 +1,65 @@
+<div class="usuarios-container">
+  <h2>Gestión de Guías</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Nueva Guía</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Lugar</th>
+          <th>Nota</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let g of listaGuias">
+          <td>{{ g.id_guia }}</td>
+          <td>{{ g.nombre }}</td>
+          <td>{{ g.apellido }}</td>
+          <td>{{ g.telefono }}</td>
+          <td>{{ g.correo }}</td>
+          <td>{{ g.lugar }}</td>
+          <td>{{ g.nota }}</td>
+          <td>{{ g.estado }}</td>
+          <td>
+            <button class="edit-btn" (click)="abrirModal(g)">✏️</button>
+            <button class="delete-btn" (click)="confirmarEliminar(g.id_guia)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🌟 Ventana emergente flotante -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>{{ editando ? 'Editar Guía' : 'Nueva Guía' }}</h3>
+
+    <form (ngSubmit)="guardarGuia()">
+      <input type="text" [(ngModel)]="guia.nombre" name="nombre" placeholder="Nombre" required />
+      <input type="text" [(ngModel)]="guia.apellido" name="apellido" placeholder="Apellido" />
+      <input type="text" [(ngModel)]="guia.telefono" name="telefono" placeholder="Teléfono" />
+      <input type="email" [(ngModel)]="guia.correo" name="correo" placeholder="Correo" />
+      <input type="text" [(ngModel)]="guia.lugar" name="lugar" placeholder="Lugar" />
+      <textarea [(ngModel)]="guia.nota" name="nota" placeholder="Nota"></textarea>
+
+      <select [(ngModel)]="guia.estado" name="estado">
+        <option value="ACTIVO">Activo</option>
+        <option value="INACTIVO">Inactivo</option>
+      </select>
+
+      <div class="modal-actions">
+        <button type="submit">{{ editando ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

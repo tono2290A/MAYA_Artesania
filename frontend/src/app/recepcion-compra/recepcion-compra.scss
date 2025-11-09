@@ -1,0 +1,10 @@
+@use '../orden-compra/orden-compra.scss' as *;
+
+.manual-grid.titulos {
+  margin-bottom: 5px;
+  label {
+    font-weight: 600;
+    color: #3e2723;
+    text-align: center;
+  }
+}

@@ -1,0 +1,19 @@
+@import '../usuarios/usuarios.scss';
+
+.filtros {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filtros label {
+  font-weight: 600;
+  color: #3e2723;
+}
+
+.filtros select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}

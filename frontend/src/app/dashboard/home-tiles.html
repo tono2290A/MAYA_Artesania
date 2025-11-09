@@ -1,0 +1,20 @@
+<div class="dashboard-home">
+  <h1 class="title">Bienvenido. Elija una opción</h1>
+  <p class="hint">Puede usar también el menú lateral para navegar.</p>
+
+  <div class="grid">
+    <a class="tile"
+       *ngFor="let t of tiles"
+       [routerLink]="t.route"
+       [class.acc-green]="t.accent==='green'"
+       [class.acc-blue]="t.accent==='blue'"
+       [class.acc-yellow]="t.accent==='yellow'"
+       [class.acc-orange]="t.accent==='orange'"
+       [class.acc-purple]="t.accent==='purple'"
+       [class.acc-teal]="t.accent==='teal'">
+      <div class="icon">{{ t.icon }}</div>
+      <div class="tt">{{ t.title }}</div>
+      <div class="st" *ngIf="t.subtitle">{{ t.subtitle }}</div>
+    </a>
+  </div>
+</div>

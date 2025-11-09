@@ -1,0 +1,49 @@
+<div class="usuarios-container">
+  <h2>Gestión de Categorías</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Nueva Categoría</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre de Categoría</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of listaCategorias">
+          <td>{{ c.id_categoria }}</td>
+          <td>{{ c.nombre_categoria }}</td>
+          <td>
+            <button class="edit-btn" (click)="abrirModal(c)">✏️</button>
+            <button class="delete-btn" (click)="confirmarEliminar(c.id_categoria)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🌟 Ventana flotante -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>{{ editando ? 'Editar Categoría' : 'Nueva Categoría' }}</h3>
+
+    <form (ngSubmit)="guardarCategoria()">
+      <input
+        type="text"
+        [(ngModel)]="categoria.nombre_categoria"
+        name="nombre_categoria"
+        placeholder="Nombre de la categoría"
+        required
+      />
+
+      <div class="modal-actions">
+        <button type="submit">{{ editando ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

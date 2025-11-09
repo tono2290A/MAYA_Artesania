@@ -1,0 +1,62 @@
+<div class="usuarios-container">
+  <h2>Gestión de Clientes</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Nuevo Cliente</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>NIT</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Tipo Cliente</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of listaClientes">
+          <td>{{ c.id_cliente }}</td>
+          <td>{{ c.nombre }}</td>
+          <td>{{ c.apellido }}</td>
+          <td>{{ c.nit }}</td>
+          <td>{{ c.telefono }}</td>
+          <td>{{ c.correo }}</td>
+          <td>{{ c.tipo_cliente }}</td>
+          <td>
+            <button class="edit-btn" (click)="abrirModal(c)">✏️</button>
+            <button class="delete-btn" (click)="confirmarEliminar(c.id_cliente)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🌟 Ventana flotante -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>{{ editando ? 'Editar Cliente' : 'Nuevo Cliente' }}</h3>
+
+    <form (ngSubmit)="guardarCliente()">
+      <input type="text" [(ngModel)]="cliente.nombre" name="nombre" placeholder="Nombre" required />
+      <input type="text" [(ngModel)]="cliente.apellido" name="apellido" placeholder="Apellido" />
+      <input type="text" [(ngModel)]="cliente.nit" name="nit" placeholder="NIT" />
+      <input type="text" [(ngModel)]="cliente.telefono" name="telefono" placeholder="Teléfono" />
+      <input type="email" [(ngModel)]="cliente.correo" name="correo" placeholder="Correo" />
+
+      <select [(ngModel)]="cliente.tipo_cliente" name="tipo_cliente" required>
+        <option value="MAYORISTA">Mayorista</option>
+        <option value="NORMAL">Normal</option>
+      </select>
+
+      <div class="modal-actions">
+        <button type="submit">{{ editando ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

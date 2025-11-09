@@ -1,0 +1,61 @@
+<div class="usuarios-container">
+  <h2>Gestión de Productos</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Nuevo Producto</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Precio Compra</th>
+          <th>Precio Venta</th>
+          <th>Ganancia (%)</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of listaProductos">
+          <td>{{ p.codigo_producto }}</td>
+          <td>{{ p.nombre }}</td>
+          <td>{{ p.nombre_categoria }}</td>
+          <td>Q{{ p.precio_compra }}</td>
+          <td>Q{{ p.precio_venta }}</td>
+          <td>{{ p.ganancia }}%</td>
+          <td>
+            <button class="edit-btn" (click)="abrirModal(p)">✏️</button>
+            <button class="delete-btn" (click)="eliminarProducto(p.id_producto)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🌟 Modal -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>{{ editando ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
+
+    <form (ngSubmit)="guardarProducto()">
+      <input type="text" [(ngModel)]="producto.codigo_producto" name="codigo_producto" placeholder="Código de producto" required>
+      <input type="text" [(ngModel)]="producto.nombre" name="nombre" placeholder="Nombre del producto" required>
+
+      <select [(ngModel)]="producto.id_categoria" name="id_categoria" required>
+        <option value="" disabled selected>Selecciona una categoría</option>
+        <option *ngFor="let c of listaCategorias" [value]="c.id_categoria">{{ c.nombre_categoria }}</option>
+      </select>
+
+      <input type="number" [(ngModel)]="producto.precio_compra" name="precio_compra" placeholder="Precio de compra" required (input)="calcularGanancia()">
+      <input type="number" [(ngModel)]="producto.precio_venta" name="precio_venta" placeholder="Precio de venta" required (input)="calcularGanancia()">
+      <input type="number" [(ngModel)]="producto.ganancia" name="ganancia" placeholder="Ganancia (%)" required (input)="calcularVentaDesdeGanancia()">
+
+      <div class="modal-actions">
+        <button type="submit">{{ editando ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

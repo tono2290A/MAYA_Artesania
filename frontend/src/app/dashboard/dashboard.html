@@ -1,0 +1,37 @@
+<div class="layout-container">
+  <!-- Menú lateral -->
+  <aside class="sidebar">
+    <div class="logo">
+      <a routerLink="/dashboard" style="display:inline-block;">
+    <img src="/logo-blanco.svg" alt="" width="180px"></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a routerLink="/dashboard/usuarios" routerLinkActive="active">Usuarios</a></li>
+        <li><a routerLink="/dashboard/guias" routerLinkActive="active">Guias</a></li>
+        <li><a routerLink="/dashboard/clientes" routerLinkActive="active">Clientes</a></li>
+        <li><a routerLink="/dashboard/proveedores" routerLinkActive="active">Proveedores</a></li>
+        <li><a routerLink="/dashboard/categorias" routerLinkActive="active"> Categorias</a></li>
+        <li><a routerLink="/dashboard/productos" routerLinkActive="active"> Productos</a></li>
+        <li><a routerLink="/dashboard/inventario" routerLinkActive="active"> Agregar Inventario</a></li>
+        <li><a routerLink="/dashboard/inventario-modificar" routerLinkActive="active">Modificar Inventario</a></li>
+        <li><a routerLink="/dashboard/reporte-inventario" routerLinkActive="active"> Reporte Inventario</a></li>
+        <li><a routerLink="/dashboard/orden-compra" routerLinkActive="active">Orden de Compra</a></li>
+        <li><a routerLink="/dashboard/recepcion-compra" routerLinkActive="active">Recepción de Compra</a></li>
+        <li><a routerLink="/dashboard/ventas" routerLinkActive="active">Gestion de Ventas</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Contenido dinámico -->
+  <main class="content">
+    <header class="topbar">
+      <span>Bienvenido al sistema</span>
+      <button (click)="logout()">Cerrar sesión</button>
+    </header>
+
+    <section class="module-content">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

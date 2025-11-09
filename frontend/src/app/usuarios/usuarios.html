@@ -1,0 +1,71 @@
+<div class="usuarios-container">
+  <h2>Gestión de Usuarios</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Nuevo Usuario</button>
+
+  <div class="tabla-card">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Usuario</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of listaUsuarios">
+        <td>{{ u.id_usuario }}</td>
+        <td>{{ u.nombre }}</td>
+        <td>{{ u.apellido }}</td>
+        <td>{{ u.usuario }}</td>
+        <td>{{ u.correo }}</td>
+        <td>{{ u.telefono }}</td>
+        <td>{{ u.rol }}</td>
+        <td>{{ u.estado }}</td>
+        <td>
+          <button class="edit-btn" (click)="abrirModal(u)">✏️</button>
+          <button class="delete-btn" (click)="confirmarEliminar(u.id_usuario)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- 🌟 Ventana emergente flotante -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>{{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+
+    <form (ngSubmit)="guardarUsuario()">
+      <input type="text" [(ngModel)]="usuario.nombre" name="nombre" placeholder="Nombre" required>
+      <input type="text" [(ngModel)]="usuario.apellido" name="apellido" placeholder="Apellido">
+      <input type="text" [(ngModel)]="usuario.usuario" name="usuario" placeholder="Usuario" required>
+      <input type="password" [(ngModel)]="usuario.password" name="password" placeholder="Contraseña" required>
+      <input type="email" [(ngModel)]="usuario.correo" name="correo" placeholder="Correo electrónico">
+      <input type="text" [(ngModel)]="usuario.telefono" name="telefono" placeholder="Teléfono">
+
+      <select [(ngModel)]="usuario.rol" name="rol" required>
+        <option value="ADMIN">Administrador</option>
+        <option value="VENDEDOR">Vendedor</option>
+        <option value="GUIA">Guía</option>
+      </select>
+
+      <select [(ngModel)]="usuario.estado" name="estado">
+        <option value="ACTIVO">Activo</option>
+        <option value="INACTIVO">Inactivo</option>
+      </select>
+
+      <div class="modal-actions">
+        <button type="submit">{{ editando ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

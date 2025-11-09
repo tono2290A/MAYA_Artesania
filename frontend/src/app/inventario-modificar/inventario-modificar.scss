@@ -1,0 +1,13 @@
+@import '../usuarios/usuarios.scss';
+
+.modal-float label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #4e342e;
+}
+
+.modal-float input {
+  margin-bottom: 10px;
+  width: 95%;
+}

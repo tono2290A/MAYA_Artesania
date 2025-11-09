@@ -1,0 +1,195 @@
+<div class="orden-container">
+  <h2>Recepción de Compras</h2>
+  <button class="nuevo-btn" (click)="abrirModal()"> Nueva Recepción</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>OC</th>
+          <th>Proveedor</th>
+          <th>No. Factura</th>
+          <th>F. Factura</th>
+          <th>F. Recepción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of recepciones">
+          <td>{{ r.id_recepcion }}</td>
+          <td>{{ r.id_orden }}</td>
+          <td>{{ r.proveedor }}</td>
+          <td>{{ r.no_factura || '—' }}</td>
+          <td>{{ r.fecha_factura || '—' }}</td>
+          <td>{{ r.fecha_recepcion }}</td>
+          <td>{{ r.estado }}</td>
+          <td>
+            <button class="details-btn" (click)="verDetalles(r)">👁️ Detalles</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL CREAR -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float grande">
+    <h3>Nueva Recepción de Compra</h3>
+
+    <!-- CABECERA -->
+    <div class="form-grid">
+      <div class="field">
+        <label>Orden de Compra</label>
+        <select [(ngModel)]="cabecera.id_orden" (change)="onOrdenChange()">
+          <option value="">-- Selecciona --</option>
+          <option *ngFor="let o of ordenes" [value]="o.id_orden">
+            #{{o.id_orden}} - {{o.proveedor}} ({{o.fecha_orden}})
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Proveedor</label>
+        <!-- Sin funciones ni Number() en el template -->
+        <input type="text" [value]="proveedorNombre" readonly>
+      </div>
+
+      <div class="field">
+        <label>No. Factura</label>
+        <input type="text" [(ngModel)]="cabecera.no_factura">
+      </div>
+
+      <div class="field">
+        <label>Fecha Factura</label>
+        <input type="date" [(ngModel)]="cabecera.fecha_factura">
+      </div>
+
+      <div class="field">
+        <label>Fecha Recepción</label>
+        <input type="date" [(ngModel)]="cabecera.fecha_recepcion">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observaciones</label>
+      <input type="text" [(ngModel)]="cabecera.observaciones" placeholder="Notas u observaciones">
+    </div>
+
+    <!-- ENTRADA MANUAL (con títulos para cada campo) -->
+<h4>Agregar productos</h4>
+
+<!-- 🔹 FILA DE TÍTULOS -->
+<div class="manual-grid titulos" style="grid-template-columns: 1fr 1fr 120px 120px 120px 100px 90px;">
+  <label><strong>Código</strong></label>
+  <label><strong>Nombre</strong></label>
+  <label><strong>P. Compra (Q)</strong></label>
+  <label><strong>P. Venta (Q)</strong></label>
+  <label><strong>Ganancia (Q)</strong></label>
+  <label><strong>Cantidad</strong></label>
+  <label><strong>Acción</strong></label>
+</div>
+
+<!-- 🔹 FILA DE CAMPOS -->
+<div class="manual-grid" style="grid-template-columns: 1fr 1fr 120px 120px 120px 100px 90px;">
+  <input
+    type="text"
+    [(ngModel)]="manual.codigo"
+    placeholder="Código / Código de barras"
+    (keyup.enter)="buscarManual()"
+    (blur)="buscarManual()"
+  />
+  <input type="text" [(ngModel)]="manual.nombre" placeholder="Nombre" readonly />
+  <input type="number" [(ngModel)]="manual.precio_compra" placeholder="Precio compra" (input)="onPrecioChange()" />
+  <input type="number" [(ngModel)]="manual.precio_venta" placeholder="Precio venta" (input)="onPrecioChange()" />
+  <input type="text" [value]="manual.ganancia | number:'1.2-2'" readonly />
+  <input type="number" [(ngModel)]="manual.cantidad" placeholder="Cantidad" />
+  <button class="mini add" (click)="agregarManual()">Agregar</button>
+</div>
+
+
+    <!-- DETALLES -->
+    <div class="tabla-card" *ngIf="detalles.length">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Cant.</th>
+            <th>P. Compra</th>
+            <th>P. Venta</th>
+            <th>Ganancia</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of detalles; let i = index">
+            <td>{{ d.codigo_producto }}</td>
+            <td>{{ d.nombre_producto }}</td>
+            <td><input type="number" [(ngModel)]="d.cantidad" min="1" /></td>
+            <td><input type="number" [(ngModel)]="d.precio_compra" step="0.01" /></td>
+            <td><input type="number" [(ngModel)]="d.precio_venta" step="0.01" /></td>
+            <td>{{ (d.precio_venta - d.precio_compra) | number:'1.2-2' }}</td>
+            <td><button class="mini del" (click)="eliminarProducto(i)">🗑️</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="guardar()">Guardar</button>
+      <button class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLES -->
+<div class="modal-overlay" *ngIf="mostrarDetalles">
+  <div class="modal-float detalles">
+    <h3>Recepción #{{ rcSeleccionada?.id_recepcion }}</h3>
+
+    <div class="form-grid">
+      <div class="field"><label>OC</label><p>#{{ rcSeleccionada?.id_orden }}</p></div>
+      <div class="field"><label>Proveedor</label><p>{{ rcSeleccionada?.proveedor }}</p></div>
+      <div class="field"><label>No. Factura</label><p>{{ rcSeleccionada?.no_factura || '—' }}</p></div>
+      <div class="field"><label>F. Factura</label><p>{{ rcSeleccionada?.fecha_factura || '—' }}</p></div>
+      <div class="field"><label>F. Recepción</label><p>{{ rcSeleccionada?.fecha_recepcion }}</p></div>
+    </div>
+
+    <div class="field">
+      <label>Observaciones</label>
+      <p>{{ rcSeleccionada?.observaciones || '—' }}</p>
+    </div>
+
+    <h4>Productos recibidos</h4>
+    <div class="tabla-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>P. Compra</th>
+            <th>P. Venta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of rcSeleccionada?.detalle">
+            <td>{{ d.codigo_producto }}</td>
+            <td>{{ d.nombre_producto }}</td>
+            <td>{{ d.cantidad }}</td>
+            <td>Q {{ d.precio_compra | number:'1.2-2' }}</td>
+            <td>Q {{ d.precio_venta  | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-actions detalles">
+      <button class="delete-btn" (click)="anular(rcSeleccionada.id_recepcion)">Anular</button>
+      <button class="cancel-btn" (click)="cerrarDetalles()">Cerrar</button>
+    </div>
+  </div>
+</div>

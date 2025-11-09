@@ -1,0 +1,32 @@
+@import '../usuarios/usuarios.scss';
+
+select {
+  color: #3e2723;
+  background-color: #fff;
+}
+
+select option {
+  color: #3e2723;
+  background-color: #fff;
+}
+
+.import-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background 0.3s;
+}
+.import-btn:hover {
+  background-color: #43a047;
+}
+
+.acciones-superior {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}

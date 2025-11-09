@@ -1,0 +1,74 @@
+.login-page {
+  display: flex;
+  height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* --- LADO IZQUIERDO --- */
+.left-side {
+  flex: 1;
+  background-image: url('/login.JPG');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- LADO DERECHO --- */
+.right-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.form-box {
+  width: 320px;
+  text-align: center;
+}
+
+.form-box h1 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #A67C52;
+}
+
+.btn-login {
+  width: 100%;
+  background: #A67C52;
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+  }
+
+.btn-login:hover {
+  background: #8D6944;
+}
+
+.error {
+  color: #E57373;
+  margin-top: 1rem;
+}

@@ -1,0 +1,23 @@
+<div class="login-page">
+  <div class="left-side">
+     </div>
+
+  <div class="right-side">
+    <div class="form-box">
+      <img src="/logo-negro.svg" alt="" width="250px">
+            <h1>BIENVENIDO</h1>
+      <form (ngSubmit)="login()">
+        <div class="input-group">
+          <input type="text" [(ngModel)]="usuario" name="usuario" placeholder="Usuario" required>
+        </div>
+
+        <div class="input-group">
+          <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required>
+        </div>
+
+        <button type="submit" class="btn-login">INICIAR SESIÓN</button>
+        <p *ngIf="error" class="error">{{ error }}</p>
+      </form>
+    </div>
+  </div>
+</div>

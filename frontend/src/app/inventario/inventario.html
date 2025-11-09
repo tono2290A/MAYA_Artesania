@@ -1,0 +1,67 @@
+<div class="usuarios-container">
+  <h2>Gestión de Inventario</h2>
+
+  <button class="nuevo-btn" (click)="abrirModal()">➕ Agregar al Inventario</button>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Stock Mínimo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let i of listaInventario">
+          <td>{{ i.id_inventario }}</td>
+          <td>{{ i.codigo_producto }}</td>
+          <td>{{ i.nombre_producto }}</td>
+          <td>{{ i.cantidad }}</td>
+          <td>{{ i.stock_minimo }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🌟 Ventana emergente -->
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-float">
+    <h3>Agregar Producto al Inventario</h3>
+
+    <form (ngSubmit)="guardarInventario()">
+      <label>Código del Producto:</label>
+      <input
+        type="text"
+        [(ngModel)]="producto.codigo_producto"
+        name="codigo_producto"
+        (input)="buscarProductoPorCodigo()"
+        placeholder="Escanea o escribe el código"
+        required
+      />
+
+      <label>Nombre del Producto:</label>
+      <input
+        type="text"
+        [(ngModel)]="producto.nombre_producto"
+        name="nombre_producto"
+        placeholder="Nombre del producto"
+        readonly
+      />
+
+      <label>Cantidad:</label>
+      <input type="number" [(ngModel)]="producto.cantidad" name="cantidad" placeholder="Cantidad" required />
+
+      <label>Stock mínimo:</label>
+      <input type="number" [(ngModel)]="producto.stock_minimo" name="stock_minimo" placeholder="Stock mínimo" required />
+
+      <div class="modal-actions">
+        <button type="submit">Guardar</button>
+        <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

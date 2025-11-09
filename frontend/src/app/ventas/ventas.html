@@ -1,0 +1,386 @@
+<div class="ventas">
+ 
+
+  <!-- TOP: Buscar por código/nombre -->
+  <div class="topbar">
+    <input type="text"
+       [(ngModel)]="codigo"
+       placeholder="Código o nombre del producto"
+       (keyup.enter)="agregarPorCodigo()"/>
+    <button class="btn" (click)="agregarPorCodigo()">Agregar Producto</button>
+  </div>
+
+  <!-- Botones de acciones rápidas (entre buscador y tabs) -->
+  <div class="ops">
+    <button class="btn" (click)="abrirArtComun()">Artículo común</button>
+    <button class="btn" (click)="abrirBuscar()">Buscar</button>
+    <button class="btn" (click)="abrirEntrada()">Entrada</button>
+    <button class="btn" (click)="abrirSalida()">Salida</button>
+    <button class="btn" (click)="abrirHistorial()">Ventas y Devoluciones</button>
+  </div>
+
+  <!-- TABS de tickets -->
+  <div class="tabs">
+    <div class="tab" *ngFor="let t of tabs; let i = index" [class.active]="i===active" (click)="setActive(i)">
+      {{ t.nombre }} <button class="close" (click)="cerrarTab(i); $event.stopPropagation()">×</button>
+    </div>
+    <button class="add-tab" (click)="nuevoTicket()">+ Nuevo</button>
+  </div>
+
+  <!-- TABLA principal -->
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Precio Venta</th>
+          <th>Cantidad</th>
+          <th>Sub_Total</th>
+          <th>Existencia</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of t.detalles; let i = index">
+          <td>{{ d.codigo_producto }}</td>
+          <td>{{ d.nombre_producto }}</td>
+          <td>
+            <input
+              type="number"
+              [(ngModel)]="d.precio_venta"
+              (change)="onPrecioChange(d)"
+              [ngStyle]="{
+                'background': esBajoCosto(d) ? '#ffebee' : 'white',
+                'border-color': esBajoCosto(d) ? '#e57373' : '#dfe5eb'
+              }"
+              min="0"
+              step="0.01"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              [(ngModel)]="d.cantidad"
+              (change)="onCantidadChange(d)"
+              [attr.max]="!d.es_comun ? disponibleParaFila(d) : null"
+              min="1" step="1"
+            />
+          </td>
+          <td>Q {{ (d.cantidad*d.precio_venta - (d.descuento||0)) | number:'1.2-2' }}</td>
+          <td>
+            <ng-container *ngIf="!d.es_comun; else infinito">
+              {{ disponibleParaFila(d) }}
+            </ng-container>
+            <ng-template #infinito>∞</ng-template>
+          </td>
+          <td><button class="mini del" (click)="eliminarLinea(i)">🗑️</button></td>
+        </tr>
+        <tr *ngIf="!t.detalles.length"><td colspan="7" style="text-align:center;">Sin productos</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div></div>
+    <div class="total">
+      <button class="btn cobrar" (click)="abrirModalPago()">💵 Cobrar</button>
+      <div class="gran-total">Q {{ total() | number:'1.2-2' }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== MODALES ================== -->
+
+<!-- Buscar -->
+<div class="modal-overlay" *ngIf="mostrarBuscar">
+  <div class="modal-float mediano">
+    <h3>Búsqueda de Productos</h3>
+    <input type="text" [(ngModel)]="termino" (keyup)="doBuscar()" placeholder="Nombre o código"/>
+    <div class="tabla-card" style="margin-top:8px;">
+      <table>
+        <thead><tr><th>Descripción</th><th>Precio</th><th>Inventario</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of resultados">
+            <td>{{ r.nombre }}</td>
+            <td>Q {{ r.precio_venta | number:'1.2-2' }}</td>
+            <td>{{ r.existencia }}</td>
+            <td><button class="mini add" (click)="seleccionarProducto(r)">Agregar</button></td>
+          </tr>
+          <tr *ngIf="!resultados.length"><td colspan="4" style="text-align:center;">Sin resultados</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-actions"><button class="cancel-btn" (click)="cerrarBuscar()">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Artículo común -->
+<div class="modal-overlay" *ngIf="mostrarArtComun">
+  <div class="modal-float chico">
+    <h3>Producto Común</h3>
+    <div class="field"><label>Descripción</label><input type="text" [(ngModel)]="art.desc"/></div>
+    <div class="grid2">
+      <div class="field"><label>Cantidad</label><input type="number" [(ngModel)]="art.cantidad" min="1"/></div>
+      <div class="field"><label>Precio</label><input type="number" [(ngModel)]="art.precio" min="0" step="0.01"/></div>
+    </div>
+    <div class="modal-actions">
+      <button (click)="agregarArtComun()">Aceptar</button>
+      <button class="cancel-btn" (click)="cerrarArtComun()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Entrada -->
+<div class="modal-overlay" *ngIf="mostrarEntrada">
+  <div class="modal-float chico">
+    <h3>Entradas de Efectivo</h3>
+    <div class="field"><label>Monto</label><input type="number" [(ngModel)]="entrada.monto" min="0" step="0.01"/></div>
+    <div class="field"><label>Comentario</label><input type="text" [(ngModel)]="entrada.comentario"/></div>
+    <div class="modal-actions">
+      <button (click)="guardarEntrada()">Aceptar</button>
+      <button class="cancel-btn" (click)="cerrarEntrada()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Salida -->
+<div class="modal-overlay" *ngIf="mostrarSalida">
+  <div class="modal-float chico">
+    <h3>Salidas de Efectivo</h3>
+    <div class="field"><label>Monto</label><input type="number" [(ngModel)]="salida.monto" min="0" step="0.01"/></div>
+    <div class="field"><label>Comentario</label><input type="text" [(ngModel)]="salida.comentario"/></div>
+    <div class="modal-actions">
+      <button (click)="guardarSalida()">Aceptar</button>
+      <button class="cancel-btn" (click)="cerrarSalida()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guardar Pendiente -->
+<div class="modal-overlay" *ngIf="mostrarPendiente">
+  <div class="modal-float chico">
+    <h3>Ticket Pendiente</h3>
+    <div class="field"><label>Nombre</label><input type="text" [(ngModel)]="nombrePendiente" placeholder="Cliente Juan / Ticket 2"/></div>
+    <div class="modal-actions">
+      <button (click)="guardarPendiente()">Aceptar</button>
+      <button class="cancel-btn" (click)="cerrarPendiente()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Pago -->
+<div class="modal-overlay" *ngIf="mostrarPago">
+  <div class="modal-float mediano">
+    <h3>Seleccionar método de pago</h3>
+
+    <div class="pay-tabs" style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px;">
+      <button class="btn" [class.active]="metodo==='EFECTIVO'" (click)="seleccionarMetodo('EFECTIVO')">Efectivo</button>
+      <button class="btn" [class.active]="metodo==='DOLARES'"  (click)="seleccionarMetodo('DOLARES')">Dólares</button>
+      <button class="btn" [class.active]="metodo==='TARJETA'"  (click)="seleccionarMetodo('TARJETA')">Tarjeta</button>
+      <button class="btn" [class.active]="metodo==='MIXTO'"    (click)="seleccionarMetodo('MIXTO')">Mixto</button>
+    </div>
+
+    <!-- EFECTIVO -->
+    <div *ngIf="metodo==='EFECTIVO'">
+      <div class="field"><label>Monto recibido (Q)</label><input type="number" [(ngModel)]="pago.efectivoQ" min="0" step="0.01"/></div>
+      <div class="pay-row">Total: <b>Q {{ total() | number:'1.2-2' }}</b></div>
+      <div class="pay-row">Cambio: <b>Q {{ (cambioEfectivoQ() > 0 ? cambioEfectivoQ() : 0) | number:'1.2-2' }}</b></div>
+    </div>
+
+    <!-- DÓLARES -->
+    <div *ngIf="metodo==='DOLARES'">
+      <div class="grid2">
+        <div class="field"><label>Monto recibido (USD)</label><input type="number" [(ngModel)]="pago.dolaresUSD" min="0" step="0.01"/></div>
+        <div class="field"><label>Tipo de cambio</label><input type="number" [(ngModel)]="tcUSD" min="0" step="0.01"/></div>
+      </div>
+      <div class="pay-row">Equivalente: <b>Q {{ equivalenteUSDaQ() | number:'1.2-2' }}</b></div>
+      <div class="pay-row">Total: <b>Q {{ total() | number:'1.2-2' }}</b></div>
+      <div class="pay-row">Cambio: <b>Q {{ (cambioDolaresQ() > 0 ? cambioDolaresQ() : 0) | number:'1.2-2' }}</b></div>
+    </div>
+
+    <!-- TARJETA -->
+    <div *ngIf="metodo==='TARJETA'">
+      <div class="field"><label>Referencia / últimos 4</label><input type="text" [(ngModel)]="pago.referencia" placeholder="XXXX"/></div>
+      <div class="pay-row">Total a cobrar: <b>Q {{ total() | number:'1.2-2' }}</b></div>
+    </div>
+
+    <!-- MIXTO -->
+    <div *ngIf="metodo==='MIXTO'">
+      <div class="grid2">
+        <div class="field"><label>Efectivo (Q)</label><input type="number" [(ngModel)]="pago.efectivoQ" min="0" step="0.01"/></div>
+        <div class="field"><label>Tarjeta (Q)</label><input type="number" [(ngModel)]="pago.tarjetaQ" min="0" step="0.01"/></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Dólares (USD)</label><input type="number" [(ngModel)]="pago.dolaresUSD" min="0" step="0.01"/></div>
+        <div class="field"><label>Tipo de cambio</label><input type="number" [(ngModel)]="tcUSD" min="0" step="0.01"/></div>
+      </div>
+      <div class="pay-row">Cubierto: <b>Q {{ cubiertoMixtoQ() | number:'1.2-2' }}</b></div>
+      <div class="pay-row">Total: <b>Q {{ total() | number:'1.2-2' }}</b></div>
+      <div class="pay-row" *ngIf="restanteMixtoQ() > 0">Restante: <b>Q {{ restanteMixtoQ() | number:'1.2-2' }}</b></div>
+      <div class="pay-row" *ngIf="restanteMixtoQ() <= 0">Cambio: <b>Q {{ (restanteMixtoQ()*-1) | number:'1.2-2' }}</b></div>
+    </div>
+
+    <!-- Notas -->
+    <div style="margin-top:10px;">
+      <label><input type="checkbox" [(ngModel)]="mostrarNotas"/> Agregar notas</label>
+      <div class="field" *ngIf="mostrarNotas" style="margin-top:6px;">
+        <label>Notas</label>
+        <textarea [(ngModel)]="notas" rows="2" placeholder="Observaciones..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <!-- ⛔️ También bloqueamos si hay bajo costo -->
+      <button (click)="confirmarCobro()" [disabled]="hayStockInsuficiente() || hayPreciosBajoCosto()">Confirmar</button>
+      <button class="cancel-btn" (click)="cerrarModalPago()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HISTORIAL DE VENTAS ===== -->
+<div class="modal-overlay" *ngIf="mostrarHistorial">
+  <div class="modal-float grande compact"
+       [ngStyle]="{ width: '90vw', maxWidth: 'none', maxHeight: '92vh', padding: '24px' }">
+    <div class="hist-grid">
+      <!-- Columna izquierda: filtros + lista -->
+      <div class="hist-left">
+        <h3>Historial de Ventas</h3>
+
+        <div class="field">
+          <label>Buscar (folio / texto)</label>
+          <input type="text" [(ngModel)]="h_q" (keyup.enter)="buscarHistorial()">
+        </div>
+
+        <div class="grid3">
+          <div class="field">
+            <label>Fecha</label>
+            <input type="date" [(ngModel)]="h_fecha" (change)="cargarHistorial()"/>
+          </div>
+          <div class="field">
+            <label>Cajero</label>
+            <input type="text" [(ngModel)]="h_cajero" placeholder="(opcional)">
+          </div>
+        </div>
+
+        <div class="hist-actions">
+          <button class="btn" (click)="buscarHistorial()">Filtrar</button>
+        </div>
+
+        <div class="tabla-card hist-list">
+          <table class="fit">
+            <colgroup>
+              <col style="width:80px">
+              <col style="width:70px">
+              <col style="width:90px">
+              <col style="width:120px">
+              <col style="width:100px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Arts</th>
+                <th>Hora</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of h_list"
+                  (click)="seleccionarVenta(v)"
+                  [class.sel]="h_sel?.id_venta === v.folio">
+                <td>{{ v.folio }}</td>
+                <td>{{ v.articulos }}</td>
+                <td>{{ v.fecha?.split(' ')[1] || v.hora }}</td>
+                <td>Q {{ v.total | number:'1.2-2' }}</td>
+                <td>{{ v.estado }}</td>
+              </tr>
+              <tr *ngIf="!h_list.length"><td colspan="5" style="text-align:center;">Sin resultados</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Columna derecha: detalle -->
+      <div class="hist-right">
+        <div class="hist-right-head">
+          <div>
+            <h3>
+              Ticket <span *ngIf="h_sel">#{{ h_sel?.id_venta }}</span>
+              <span *ngIf="h_bloqueada"
+                    style="margin-left:8px; padding:2px 6px; border-radius:8px; background:#ffe5e5; color:#b71c1c; font-weight:700; font-size:.85rem;">
+                ANULADA
+              </span>
+            </h3>
+
+            <div class="mini-kv" *ngIf="h_sel" style="display:flex; gap:10px; flex-wrap:wrap;">
+              <span><b>Fecha:</b> {{ h_sel?.fecha }}</span>
+              <span><b>Cajero:</b> {{ h_sel?.cajero || '—' }}</span>
+              <span><b>Cliente:</b> {{ h_sel?.id_cliente || '—' }}</span>
+            </div>
+
+            <div *ngIf="h_sel" style="margin-top:6px; padding:8px; border:1px solid #e6ecf2; border-radius:10px; background:#f9fbff;">
+              <div><b>Total venta:</b> Q {{ h_sel?.total | number:'1.2-2' }}</div>
+              <div>
+                <b>Pagado (equivalente en Q):</b> Q {{ h_pagadoQEquiv | number:'1.2-2' }}
+                <small> (Q {{ h_totalPagadoQ | number:'1.2-2' }} + USD {{ h_totalPagadoUSD | number:'1.2-2' }})</small>
+              </div>
+              <div><b>Saldo:</b> Q {{ h_saldoQ | number:'1.2-2' }}</div>
+            </div>
+          </div>
+
+          <div class="hist-right-actions">
+            <button class="btn danger" [disabled]="!h_sel || h_bloqueada" (click)="anularVentaSeleccionada()">Cancelar Venta</button>
+          </div>
+        </div>
+
+        <div class="tabla-card">
+          <table class="fit">
+            <colgroup>
+              <col style="width:70px">
+              <col>
+              <col style="width:130px">
+              <col style="width:70px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th>Importe</th>
+                <th>Dev.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of h_det"
+                  (click)="seleccionarDetalle(d)"
+                  [class.sel]="h_det_sel?.id_detalle===d.id_detalle">
+                <td>{{ d.cantidad }}</td>
+                <td>{{ d.nombre_producto }}</td>
+                <td>Q {{ (d.cantidad*d.precio_venta - (d.descuento||0)) | number:'1.2-2' }}</td>
+                <td>{{ d.cantidad_devuelta || 0 }}</td>
+              </tr>
+              <tr *ngIf="!h_det.length"><td colspan="4" style="text-align:center;">Sin detalle</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="dev-row">
+          <div class="field" style="max-width:200px;">
+            <label>Cantidad a devolver</label>
+            <input type="number" min="1" [(ngModel)]="h_cant_dev">
+          </div>
+          <button class="btn" [disabled]="!h_det_sel || h_bloqueada" (click)="devolverSeleccion()">Devolver artículo seleccionado</button>
+        </div>
+
+        <div class="tot-row" *ngIf="h_sel">
+          <div style="font-weight:700;">Total: Q {{ h_sel?.total | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cerrarHistorial()">Cerrar</button>
+    </div>
+  </div>
+</div>

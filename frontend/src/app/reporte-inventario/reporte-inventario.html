@@ -1,0 +1,38 @@
+<div class="usuarios-container">
+  <h2>Reporte de Inventario</h2>
+
+  <div class="filtros">
+    <label>Filtrar por categoría:</label>
+    <select [(ngModel)]="categoriaSeleccionada" (change)="filtrar()">
+      <option value="">Todas</option>
+      <option *ngFor="let c of categorias" [value]="c.id_categoria">{{ c.nombre_categoria }}</option>
+    </select>
+  </div>
+
+  <div class="tabla-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>P. Compra</th>
+          <th>P. Venta</th>
+          <th>Existencia</th>
+          <th>Inv. Mínimo</th>
+          <th>Categoría</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of listaInventario">
+          <td>{{ p.codigo_producto }}</td>
+          <td>{{ p.descripcion }}</td>
+          <td>Q {{ p.p_compra }}</td>
+          <td>Q {{ p.p_venta }}</td>
+          <td>{{ p.existencia || 0 }}</td>
+          <td>{{ p.inv_minimo || 0 }}</td>
+          <td>{{ p.categoria }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
